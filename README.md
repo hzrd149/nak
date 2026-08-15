@@ -15,6 +15,33 @@ curl -sSL https://raw.githubusercontent.com/fiatjaf/nak/master/install.sh | sh
 - or install with `paru -S nak-bin` or `yay -S nak-bin` if you are on **Arch Linux**.
 - or install with `nix-env --install nak` if you use **Nix**.
 
+### Nix flake
+
+Run nak directly or enter the Go development shell:
+
+```sh
+nix run github:fiatjaf/nak -- --help
+nix develop github:fiatjaf/nak
+```
+
+To install nak through the included NixOS module, add the flake as an input and
+enable the module:
+
+```nix
+{
+  inputs.nak.url = "github:fiatjaf/nak";
+
+  outputs = { nixpkgs, nak, ... }: {
+    nixosConfigurations.my-host = nixpkgs.lib.nixosSystem {
+      modules = [
+        nak.nixosModules.default
+        { programs.nak.enable = true; }
+      ];
+    };
+  };
+}
+```
+
 ## what can you do with it?
 
 take a look at the help text that comes in it to learn all possibilities, but here are some:
