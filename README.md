@@ -24,6 +24,12 @@ nix run github:fiatjaf/nak -- --help
 nix develop github:fiatjaf/nak
 ```
 
+The package source includes only `go.mod`, `go.sum`, and `.go` files directly in
+the repository root, `nostrfs/`, and `nostrfs_cgo/`. Add new package directories or
+build assets to the inclusion list in `flake.nix` when needed. The CLI version is
+`0-unstable`, independent of repository timestamps, so unrelated files and commits
+do not change the package derivation.
+
 To install nak through the included NixOS module, add the flake as an input and
 enable the module:
 

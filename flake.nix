@@ -12,8 +12,25 @@
         "x86_64-darwin"
         "x86_64-linux"
       ];
-      forAllSystems = nixpkgs.lib.genAttrs supportedSystems;
-      version = "0-unstable-${builtins.substring 0 8 self.lastModifiedDate}";
+      lib = nixpkgs.lib;
+      forAllSystems = lib.genAttrs supportedSystems;
+      version = "0-unstable";
+
+      # Include only Go files in the CLI's package directories and its module manifests.
+      goSources = directory:
+        map (name: directory + "/${name}") (
+          builtins.attrNames (
+            lib.filterAttrs (name: type: type == "regular" && lib.hasSuffix ".go" name) (
+              builtins.readDir directory
+            )
+          )
+        );
+      src = lib.fileset.toSource {
+        root = ./.;
+        fileset = lib.fileset.unions (
+          [ ./go.mod ./go.sum ] ++ lib.concatMap goSources [ ./. ./nostrfs ./nostrfs_cgo ]
+        );
+      };
     in
     {
       packages = forAllSystems (
@@ -23,8 +40,7 @@
         in
         rec {
           nak = pkgs.callPackage ./nix/package.nix {
-            inherit version;
-            src = self;
+            inherit src version;
           };
           default = nak;
         }
